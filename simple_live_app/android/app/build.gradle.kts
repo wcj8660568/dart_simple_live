@@ -18,16 +18,9 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ✅ 删掉了重复的 compileOptions，交由 Flutter 自动托管，解决 finalized 冲突
+    // ✅ 不写 compileOptions，也不写 kotlin jvmTarget，
+    //    全部交由 Flutter 插件自动配置 JDK 17，彻底避免 finalized 冲突
 
-    // ✅ 保留 Kotlin 17 配置
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
-    }
-
-    // ✅ 开启 BuildConfig
     buildFeatures {
         buildConfig = true
     }
@@ -56,13 +49,13 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
-            
+
             isMinifyEnabled = true
             isShrinkResources = true
-            
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro" // 确保 android/app/ 目录下有 proguard-rules.pro 文件
+                "proguard-rules.pro"
             )
         }
     }
