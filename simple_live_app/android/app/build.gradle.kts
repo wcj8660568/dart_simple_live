@@ -18,8 +18,15 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ✅ 不写 compileOptions，也不写 kotlin jvmTarget，
-    //    全部交由 Flutter 插件自动配置 JDK 17，彻底避免 finalized 冲突
+    // ✅ 显式统一 Java 和 Kotlin 的 JVM 目标为 17，解决 Inconsistent JVM Target 错误
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 
     buildFeatures {
         buildConfig = true
