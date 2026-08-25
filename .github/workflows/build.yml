@@ -23,12 +23,11 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          # ✅ 核心修复：指定 3.29.0 以获取 Dart 3.10+
-          flutter-version: '3.29.0' 
+          # ✅ 核心修复：使用正确的版本号 3.47.1 (对应 Dart 3.10+)
+          flutter-version: '3.47.1' 
           channel: stable
           cache: true
 
-      # 这里的逻辑保持不变，先装 core 再装 app
       - name: Install core dependencies
         run: |
           cd simple_live_core
@@ -42,7 +41,6 @@ jobs:
       - name: Build APK
         run: |
           cd simple_live_app
-          # 增加 --no-tree-shake-icons 防止部分图标字体在云构建报错，可选
           flutter build apk --release
 
       - name: Upload APK
