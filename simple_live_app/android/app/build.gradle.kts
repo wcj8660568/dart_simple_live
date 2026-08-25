@@ -18,7 +18,16 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ✅ 不写 compileOptions 和 kotlinOptions，由根目录统一处理
+    // ✅ 显式设置 Java 编译目标为 17
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    // ✅ 显式设置 Kotlin 编译目标为 17
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 
     buildFeatures {
         buildConfig = true
