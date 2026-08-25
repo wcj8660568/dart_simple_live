@@ -18,20 +18,20 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ⚠️ 修复1：AGP 8.7+ 必须使用 JDK 17
+    // ✅ 修复1：AGP 8.7+ 必须使用 JDK 17
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // ✅ 修复2：使用新的 kotlin DSL 写法
+    // ✅ 修复2：使用新的 kotlin DSL 写法 (替换原来的 kotlinOptions)
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 
-    // ⚠️ 修复3：显式开启 BuildConfig 生成
+    // ✅ 修复3：显式开启 BuildConfig 生成 (AGP 8.0+ 需要)
     buildFeatures {
         buildConfig = true
     }
@@ -60,10 +60,13 @@ android {
 
     buildTypes {
         release {
-            // ✅ 优化：优先使用 release 签名，如果不存在（即没找到 key.properties），则回退到 debug 签名
+            // ✅ 优化：优先使用 release 签名，如果不存在则回退到 debug 签名
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            
+            // 开启代码混淆和压缩
             isMinifyEnabled = true
             isShrinkResources = true
+            
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
