@@ -18,15 +18,7 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // ✅ 显式统一 Java 和 Kotlin 的 JVM 目标为 17，解决 Inconsistent JVM Target 错误
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    // ✅ 不写 compileOptions 和 kotlinOptions，由根目录统一处理
 
     buildFeatures {
         buildConfig = true
