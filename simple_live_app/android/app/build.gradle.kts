@@ -24,11 +24,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    // ✅ 修复2：使用新的 kotlin DSL 写法
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 
-    // ⚠️ 修复2：显式开启 BuildConfig 生成
+    // ⚠️ 修复3：显式开启 BuildConfig 生成
     buildFeatures {
         buildConfig = true
     }
@@ -41,7 +44,7 @@ android {
         versionName = flutter.versionName
     }
 
-signingConfigs {
+    signingConfigs {
         // ✅ 优化：只有当 key.properties 文件存在时，才创建 release 签名配置
         if (keystorePropertiesFile.exists()) {
             create("release") {
