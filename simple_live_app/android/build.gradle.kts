@@ -20,17 +20,10 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// ✅ 在所有子项目评估完成后，强制统一 Java 和 Kotlin 的 JVM 目标为 17
-// 使用 gradle.projectsEvaluated 确保覆盖 auto_orientation_v2 等第三方插件的设置
+// ✅ 只全局覆盖 Kotlin 编译目标（不影响 Java classpath）
+// Java 编译目标由各模块自己的 build.gradle 控制
 gradle.projectsEvaluated {
     subprojects {
-        // 强制统一 Java 编译目标为 17
-        tasks.withType<JavaCompile>().configureEach {
-            sourceCompatibility = JavaVersion.VERSION_17.toString()
-            targetCompatibility = JavaVersion.VERSION_17.toString()
-        }
-
-        // 强制统一 Kotlin 编译目标为 17
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
             compilerOptions {
                 jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
