@@ -11,12 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
+      # 1. 优先安装 Flutter，确保最新版 Dart 的 PATH 优先级最高
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -24,23 +19,33 @@ jobs:
           channel: stable
           cache: false
 
+      # 2. 然后再安装 Java 环境
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. 使用 flutter pub get 代替 dart pub get，强制绑定到新版 Dart
       - name: Install core dependencies
         run: |
           cd simple_live_core
-          dart pub get
+          flutter pub get
 
       - name: Install app dependencies
         run: |
           cd simple_live_app
           flutter pub get
 
+      # 4. 编译 APK
       - name: Build APK
         run: |
           cd simple_live_app
           flutter build apk --release
 
+      # 5. 上传构建产物
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SimpleLive-Android
+          name: SimpleLive-Android-APK
           path: simple_live_app/build/app/outputs/flutter-apk/app-release.apk
