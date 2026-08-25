@@ -1,39 +1,31 @@
 name: Build Simple Live
 
 on:
-  workflow_dispatch:  # 支持手动触发
+  workflow_dispatch:
 
 jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.47.0'
           channel: stable
-          cache: true
 
       - name: Install core dependencies
         run: |
           cd simple_live_core
-          dart pub get
-          cd ..
+          flutter pub get
 
       - name: Install app dependencies
         run: |
           cd simple_live_app
           flutter pub get
-          cd ..
 
       - name: Build APK
         run: |
@@ -43,5 +35,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SimpleLive-Android
+          name: app-release.apk
           path: simple_live_app/build/app/outputs/flutter-apk/app-release.apk
