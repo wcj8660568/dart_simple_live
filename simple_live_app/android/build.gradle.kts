@@ -1,74 +1,51 @@
-import java.util.Properties
-import java.io.FileInputStream
-
-plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("dev.flutter.flutter-gradle-plugin")
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
-val keystoreProperties = Properties()
-val keystorePropertiesFile = rootProject.file("key.properties")
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 
-android {
-    namespace = "com.xycz.simple_live"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+// ❌ 删除这一行！它是导致 generateLockfiles 任务重复注册的元凶
+// subprojects {
+//     project.evaluationDependsOn(":app")
+// }
 
-    // ✅ 显式设置 Java 编译目标为 17
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+// ✅ 安全地为所有 Android 子模块统一 Java 和 Kotlin 编译目标为 17
+subprojects {
+    pluginManager.withPlugin("com.android.library") {
+        configureAndroidJavaTarget()
     }
-
-    // ✅ 显式设置 Kotlin 编译目标为 17
-    kotlinOptions {
-        jvmTarget = "17"
+    pluginManager.withPlugin("com.android.application") {
+        configureAndroidJavaTarget()
     }
+}
 
-    buildFeatures {
-        buildConfig = true
-    }
-
-    defaultConfig {
-        applicationId = "com.xycz.simple_live"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
-
-    signingConfigs {
-        if (keystorePropertiesFile.exists()) {
-            create("release") {
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-                storeFile = keystoreProperties.getProperty("storeFile")?.let { file(it) }
-                storePassword = keystoreProperties.getProperty("storePassword")
-                isV1SigningEnabled = true
-                isV2SigningEnabled = true
-            }
+fun Project.configureAndroidJavaTarget() {
+    extensions.findByType<com.android.build.gradle.BaseExtension>()?.apply {
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
     }
 
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
-
-            isMinifyEnabled = true
-            isShrinkResources = true
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
 }
 
-flutter {
-    source = "../.."
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
 }
