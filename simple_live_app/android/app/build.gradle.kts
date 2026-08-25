@@ -19,10 +19,10 @@ android {
     ndkVersion = flutter.ndkVersion
 
     // ✅ 修复1：AGP 8.7+ 必须使用 JDK 17
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+    //compileOptions {
+      //  sourceCompatibility = JavaVersion.VERSION_17
+        //targetCompatibility = JavaVersion.VERSION_17
+   // }
 
     // ✅ 修复2：使用新的 kotlin DSL 写法 (替换原来的 kotlinOptions)
     kotlin {
