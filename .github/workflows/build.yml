@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       # ✅ 修复1：设置 JDK 17 (AGP 8.7+ 必须)
-      # ✅ 修复2：升级到 v5 消除截图中的警告
+      # ✅ 修复2：升级到 v5 消除 Node.js 警告
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -23,13 +23,12 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          # ✅ 核心修复：锁定为 3.29.0 (Stable)
-          # 之前报错是因为云端跑在了 Beta 版上，导致 SDK 版本校验失败
+          # ✅ 核心修复：指定 3.29.0 以获取 Dart 3.10+
           flutter-version: '3.29.0' 
           channel: stable
           cache: true
 
-      # 这里的步骤保持不变
+      # 这里的逻辑保持不变，先装 core 再装 app
       - name: Install core dependencies
         run: |
           cd simple_live_core
@@ -43,6 +42,7 @@ jobs:
       - name: Build APK
         run: |
           cd simple_live_app
+          # 增加 --no-tree-shake-icons 防止部分图标字体在云构建报错，可选
           flutter build apk --release
 
       - name: Upload APK
