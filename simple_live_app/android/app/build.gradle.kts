@@ -43,10 +43,13 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+            // ✅ 核心修复：使用 ?: "" 防止 null 值导致崩溃
+            // 如果 key.properties 不存在，这里会填入空字符串，保证构建不中断
+            keyAlias = keystoreProperties["keyAlias"] as String? ?: ""
+            keyPassword = keystoreProperties["keyPassword"] as String? ?: ""
             storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+            storePassword = keystoreProperties["storePassword"] as String? ?: ""
+            
             isV1SigningEnabled = true
             isV2SigningEnabled = true
         }
@@ -54,6 +57,7 @@ android {
 
     buildTypes {
         release {
+            // 注意：如果没有配置签名文件，这里可能会回退到 debug 签名
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
