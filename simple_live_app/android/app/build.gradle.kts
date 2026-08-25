@@ -41,24 +41,24 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            // ✅ 核心修复：使用 ?: "" 防止 null 值导致崩溃
-            // 如果 key.properties 不存在，这里会填入空字符串，保证构建不中断
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: ""
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: ""
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String? ?: ""
-            
-            isV1SigningEnabled = true
-            isV2SigningEnabled = true
+signingConfigs {
+        // ✅ 优化：只有当 key.properties 文件存在时，才创建 release 签名配置
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = keystoreProperties.getProperty("storeFile")?.let { file(it) }
+                storePassword = keystoreProperties.getProperty("storePassword")
+                isV1SigningEnabled = true
+                isV2SigningEnabled = true
+            }
         }
     }
 
     buildTypes {
         release {
-            // 注意：如果没有配置签名文件，这里可能会回退到 debug 签名
-            signingConfig = signingConfigs.getByName("release")
+            // ✅ 优化：优先使用 release 签名，如果不存在（即没找到 key.properties），则回退到 debug 签名
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
